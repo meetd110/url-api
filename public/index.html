@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouSafe | R2 API Console</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.1);
+            --accent: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 40%);
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #818cf8, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            color: white;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+        }
+
+        button {
+            width: 100%;
+            padding: 0.85rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .result-area {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 0.75rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85rem;
+            word-break: break-all;
+            display: none;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .result-area.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .badge {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 1rem;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .badge-post { background: #ec4899; color: white; }
+        .badge-get { background: #3b82f6; color: white; }
+
+        footer {
+            margin-top: auto;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .copy-btn {
+            margin-top: 0.5rem;
+            padding: 0.4rem;
+            font-size: 0.75rem;
+            background: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>YouSafe R2 Console</h1>
+            <p class="subtitle">Cloudflare R2 Pre-signed URL Generator v1.0</p>
+        </header>
+
+        <div class="dashboard">
+            <!-- Upload Section -->
+            <div class="card">
+                <h2><span class="badge badge-post">POST</span> Generate Upload</h2>
+                <div class="input-group">
+                    <label>File Name (Path)</label>
+                    <input type="text" id="uploadFileName" placeholder="e.g. user1/docs/photo.jpg" value="test/demo-upload.txt">
+                </div>
+                <div class="input-group">
+                    <label>Content Type</label>
+                    <input type="text" id="uploadContentType" placeholder="e.g. image/jpeg" value="text/plain">
+                </div>
+                <button onclick="generateUpload()">Generate Upload URL</button>
+                <div id="uploadResult" class="result-area"></div>
+            </div>
+
+            <!-- Download Section -->
+            <div class="card">
+                <h2><span class="badge badge-get">GET</span> Generate Download</h2>
+                <div class="input-group">
+                    <label>File Name (Path)</label>
+                    <input type="text" id="downloadFileName" placeholder="e.g. user1/docs/photo.jpg" value="test/demo-upload.txt">
+                </div>
+                <button onclick="generateDownload()">Generate Download URL</button>
+                <div id="downloadResult" class="result-area"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2026 YouSafe Project &bull; Powered by Cloudflare R2
+    </footer>
+
+    <script>
+        async function generateUpload() {
+            const fileName = document.getElementById('uploadFileName').value;
+            const contentType = document.getElementById('uploadContentType').value;
+            const resultDiv = document.getElementById('uploadResult');
+
+            resultDiv.innerText = 'Generating...';
+            resultDiv.classList.add('active');
+
+            try {
+                const response = await fetch('/generate-upload-url', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fileName, contentType })
+                });
+                const data = await response.json();
+                
+                if (data.uploadUrl) {
+                    resultDiv.innerHTML = `
+                        <div style="color: var(--accent); margin-bottom: 0.5rem">✓ Success!</div>
+                        <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${data.uploadUrl}</div>
+                        <button class="copy-btn" onclick="copyToClipboard('${data.uploadUrl}')">Copy URL</button>
+                    `;
+                } else {
+                    resultDiv.innerText = 'Error: ' + (data.error || 'Unknown error');
+                }
+            } catch (err) {
+                resultDiv.innerText = 'Network error: ' + err.message;
+            }
+        }
+
+        async function generateDownload() {
+            const fileName = document.getElementById('downloadFileName').value;
+            const resultDiv = document.getElementById('downloadResult');
+
+            resultDiv.innerText = 'Generating...';
+            resultDiv.classList.add('active');
+
+            try {
+                const response = await fetch(\`/generate-download-url?fileName=\${encodeURIComponent(fileName)}\`);
+                const data = await response.json();
+                
+                if (data.downloadUrl) {
+                    resultDiv.innerHTML = `
+                        <div style="color: var(--accent); margin-bottom: 0.5rem">✓ Success!</div>
+                        <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${data.downloadUrl}</div>
+                        <button class="copy-btn" onclick="copyToClipboard('${data.downloadUrl}')">Copy URL</button>
+                        <a href="${data.downloadUrl}" target="_blank" style="display: block; margin-top: 0.5rem; color: var(--primary); text-decoration: none; font-size: 0.8rem">Open in New Tab →</a>
+                    `;
+                } else {
+                    resultDiv.innerText = 'Error: ' + (data.error || 'Unknown error');
+                }
+            } catch (err) {
+                resultDiv.innerText = 'Network error: ' + err.message;
+            }
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text);
+            alert('Copied to clipboard!');
+        }
+    </script>
+</body>
+</html>
